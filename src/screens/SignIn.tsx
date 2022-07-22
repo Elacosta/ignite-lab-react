@@ -30,7 +30,6 @@ export function SignIn() {
             <Button 
             title="Logar"
             w="full"
-
             />
         </VStack>
     )
