@@ -1,16 +1,38 @@
 import { useState } from 'react';
 import { HStack, IconButton, VStack, useTheme, Text, Heading, FlatList, Center } from 'native-base';
 import { ChatTeardropText, SignOut } from 'phosphor-react-native';
+import auth from '@react-native-firebase/auth'
+import { Alert } from 'react-native';
 import Logo from '../assets/logo_secondary.svg';
 import { Filter } from '../components/Filter';
 import { Order, OrderProps } from '../components/Order';
 import { Button } from '../components/Button';
+import { useNavigation } from '@react-navigation/native';
 
 export function Home() {
     
     const [statusSelected, setStatusSelected] = useState<'open' | 'closed'>('open');
     const [orders, setOrders] = useState<OrderProps[]>([]);
+
     const { colors } = useTheme();
+    const navigation = useNavigation();
+
+    function handleOpenNewOrder() {
+        navigation.navigate('new')
+    }
+
+    function handleOpenDetails(orderId: string) {
+        navigation.navigate('details', {orderId});
+    }
+
+    function handleLogOut() {
+        auth()
+        .signOut()
+        .catch(error => {
+            console.log(error);
+            return Alert.alert('Sair', 'Não foi possivel sair');
+        });
+    }
 
     return (
         <VStack flex={1} pb={6} bg="gray.700">
@@ -28,15 +50,16 @@ export function Home() {
                     icon={<SignOut size={26} color={colors.gray[300]} />}
                     borderColor={colors.gray[300]}
                     borderWidth={1}
+                    onPress={handleLogOut}
                 />
             </HStack>
             <VStack flex={1} px={6}>
                 <HStack w="full" mt={8} mb={4} justifyContent="space-between" alignItems="center">
                     <Heading color="gray.100">
-                        Meus Chamados
+                        Solicitações
                     </Heading>
                     <Text color="gray.200">
-                        3
+                        {orders.length}
                     </Text>
                 </HStack>
                 <HStack space={3} marginBottom={8}>
@@ -56,7 +79,7 @@ export function Home() {
                 <FlatList 
                 data={orders}
                 keyExtractor={item => item.id}
-                renderItem={({item}) => <Order data={item}/>}
+                renderItem={({item}) => <Order data={item} onPress={() => handleOpenDetails(item.id)} />}
                 showsVerticalScrollIndicator={false}
                 contentContainerStyle={{paddingBottom:100}}
                 ListEmptyComponent={() => (
@@ -69,7 +92,7 @@ export function Home() {
                     </Center>
                 )}
                 />
-                <Button title='Nova Solicitação'/>
+                <Button title='Nova Solicitação' onPress={handleOpenNewOrder} />
             </VStack>
         </VStack>
     );

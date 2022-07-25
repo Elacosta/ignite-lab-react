@@ -8,7 +8,7 @@ export type OrderProps = {
     status: 'open' | 'closed';
 }
 
-type Props = {
+type Props = IPressableProps & {
     data: OrderProps;
 }
 
